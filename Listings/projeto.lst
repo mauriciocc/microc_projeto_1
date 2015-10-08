@@ -1,0 +1,247 @@
+A51 MACRO ASSEMBLER  PROJETO                                                              10/07/2015 21:28:13 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.02c
+OBJECT MODULE PLACED IN .\Objects\projeto.obj
+ASSEMBLER INVOKED BY: C:\Programs\Keil_v5\C51\BIN\A51.EXE projeto.a51 NOMOD51 SET(SMALL) DEBUG PRINT(.\Listings\projeto.
+                      lst) OBJECT(.\Objects\projeto.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;#include <reg52.inc>
+                +1     2     ;-------------------------------------------------------------------------------
+                +1     3     ; Copyright 1995-1996 KEIL Software, Inc.
+                +1     4     ; 8052 Processor Declarations
+                +1     5     ;-------------------------------------------------------------------------------
+                +1     6  +1 $save 
+                +1   107  +1 $restore 
+                +1   108     
+                     109     
+                     110     
+  REG                111     VALOR_DEBITO EQU R7
+                     112     
+0000 022500          113     JMP 2500H
+2500                 114     ORG 2500H
+                     115     
+                     116     ; SETUP DO TIMER 2 (TIMER CONTARA 50MS)
+2500 75C800          117     MOV T2CON, #00000000b
+2503 75CB3C          118     MOV RCAP2H, #03Ch
+2506 75CAB0          119     MOV RCAP2L, #0B0h
+2509 85CBCD          120     MOV TH2,        RCAP2H
+250C 85CACC          121     MOV TL2,        RCAP2L
+                     122     
+                     123     
+                     124     
+250F                 125     REINICIA_CANCELA:
+                     126     
+                     127             ; LIMPA P1
+250F 759000          128             MOV P1, #0
+                     129     
+                     130             ; AGUARDA ATÉ VEICULO ATIVAR O PRIMEIRO SENSOR E SALVA VALOR DA PORTA NO ACUMULADO
+                             R
+2512 B124            131             CALL ESPERA_POR_VEICULO
+                     132     
+                     133             ; PEGA VALOR DEVIDO E COLOCA NA VARIAVEL "VALOR_DEBITO"
+2514 B12A            134             CALL PEGA_VALOR_DEBITO
+                     135     
+                     136             ; AGUARDA PELO PAGAMENTO DO DEBITO
+2516 B145            137             CALL AGUARDA_PAGAMENTO
+                     138             
+2518 B149            139             CALL ABRE_CANCELA
+                     140     
+251A B14C            141             CALL AGUARDA_PASSAGEM_VEICULO
+                     142     
+251C 7804            143             MOV R0, #4
+                     144     
+251E B150            145             CALL AGUARDA_N_SEGUNDOS
+                     146     
+2520 80ED            147     JMP REINICIA_CANCELA
+                     148     
+2522 80FE            149     JMP $
+                     150     
+                     151     ; FUNCOES
+                     152     
+                     153     ;------------------------------------------------------
+                     154     ; AGUARDA ATE O VEICULO CHEGAR NO S1
+2524                 155     ESPERA_POR_VEICULO: 
+2524                 156             EPV_LOOP:
+A51 MACRO ASSEMBLER  PROJETO                                                              10/07/2015 21:28:13 PAGE     2
+
+2524 3090FD          157             JNB P1.0, EPV_LOOP
+2527 E590            158             MOV A, P1
+2529 22              159     RET
+                     160     
+                     161     ;------------------------------------------------------
+                     162     ; COM BASE NO VALOR DO ACUMULADOR DETERMINA VALOR DO DEBITO PARA O VEICULO (GUARDA RESULTAD
+                             O NA VARIAVEL "VALOR_DEBITO")
+252A                 163     PEGA_VALOR_DEBITO: 
+                     164     
+252A B40104          165             CJNE A, #0001b, PULA_VALOR_MOTO
+252D 7F00            166                     MOV VALOR_DEBITO, #0
+252F 8013            167                     JMP PULA_FIM_VALOR_DEBITO
+2531                 168             PULA_VALOR_MOTO:
+                     169     
+2531 B40304          170             CJNE A, #0011b, PULA_VALOR_CARRO
+2534 7F05            171                     MOV VALOR_DEBITO, #5
+2536 800C            172                     JMP PULA_FIM_VALOR_DEBITO
+2538                 173             PULA_VALOR_CARRO:
+                     174     
+2538 B40704          175             CJNE A, #0111b, PULA_VALOR_3_EIXOS
+253B 7F07            176                     MOV VALOR_DEBITO, #7
+253D 8005            177                     JMP PULA_FIM_VALOR_DEBITO
+253F                 178             PULA_VALOR_3_EIXOS:
+                     179     
+253F B40F02          180             CJNE A, #1111b, PULA_FIM_VALOR_DEBITO
+2542 7F0A            181                     MOV VALOR_DEBITO, #10
+                     182                     
+2544                 183             PULA_FIM_VALOR_DEBITO:
+2544 22              184     RET
+                     185     
+                     186     ;------------------------------------------------------
+                     187     ; AGUARDA PAGAMENTO DO DEBITO
+2545                 188     AGUARDA_PAGAMENTO:
+2545                 189             AP_LOOP:        
+2545 BF00FD          190             CJNE VALOR_DEBITO, #0, AP_LOOP  
+2548 22              191     RET
+                     192     
+                     193     ;------------------------------------------------------
+                     194     ; SINALIZA ABERTURA DA CANCELA (AC = 1)
+2549                 195     ABRE_CANCELA: 
+2549 D297            196             SETB P1.7
+254B 22              197     RET
+                     198     
+                     199     ;------------------------------------------------------
+                     200     ; AGUARDA VEICULO PASSAR PELO PEDAGIO (S1 = 0 INDICA A PASSAGEM DO VEICULO)
+254C                 201     AGUARDA_PASSAGEM_VEICULO:
+254C                 202             APV_LOOP:
+254C 2090FD          203             JB P1.0, APV_LOOP
+254F 22              204     RET
+                     205             
+                     206     ;------------------------------------------------------
+                     207     ; AGUARDA N SEGUNDOS (R0 DEVE CONTER O NUMERO DE SEGUNDOS A SEREM ESPERADOS)
+2550                 208     AGUARDA_N_SEGUNDOS:
+2550                 209             ANS_LOOP:       
+2550 7914            210                     MOV R1, #20
+2552                 211                     ANS_SEC_LOOP:
+2552 D2CA            212                             SETB TR2
+2554 30CFFD          213                             JNB TF2, $      
+2557 C2CA            214                             CLR TR2
+2559 C2CF            215                             CLR TF2
+255B D9F5            216                     DJNZ R1, ANS_SEC_LOOP
+255D D8F1            217             DJNZ R0, ANS_LOOP
+255F 22              218     RET             
+                     219     
+                     220     END
+A51 MACRO ASSEMBLER  PROJETO                                                              10/07/2015 21:28:13 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E                   T Y P E  V A L U E   ATTRIBUTES
+
+ABRE_CANCELA . . . . . .  C ADDR   2549H   A   
+AC . . . . . . . . . . .  B ADDR   00D0H.6 A   
+ACC. . . . . . . . . . .  D ADDR   00E0H   A   
+AGUARDA_N_SEGUNDOS . . .  C ADDR   2550H   A   
+AGUARDA_PAGAMENTO. . . .  C ADDR   2545H   A   
+AGUARDA_PASSAGEM_VEICULO  C ADDR   254CH   A   
+ANS_LOOP . . . . . . . .  C ADDR   2550H   A   
+ANS_SEC_LOOP . . . . . .  C ADDR   2552H   A   
+APV_LOOP . . . . . . . .  C ADDR   254CH   A   
+AP_LOOP. . . . . . . . .  C ADDR   2545H   A   
+B. . . . . . . . . . . .  D ADDR   00F0H   A   
+CP_RL2 . . . . . . . . .  B ADDR   00C8H.0 A   
+CY . . . . . . . . . . .  B ADDR   00D0H.7 A   
+C_T2 . . . . . . . . . .  B ADDR   00C8H.1 A   
+DPH. . . . . . . . . . .  D ADDR   0083H   A   
+DPL. . . . . . . . . . .  D ADDR   0082H   A   
+EA . . . . . . . . . . .  B ADDR   00A8H.7 A   
+EPV_LOOP . . . . . . . .  C ADDR   2524H   A   
+ES . . . . . . . . . . .  B ADDR   00A8H.4 A   
+ESPERA_POR_VEICULO . . .  C ADDR   2524H   A   
+ET0. . . . . . . . . . .  B ADDR   00A8H.1 A   
+ET1. . . . . . . . . . .  B ADDR   00A8H.3 A   
+ET2. . . . . . . . . . .  B ADDR   00A8H.5 A   
+EX0. . . . . . . . . . .  B ADDR   00A8H.0 A   
+EX1. . . . . . . . . . .  B ADDR   00A8H.2 A   
+EXEN2. . . . . . . . . .  B ADDR   00C8H.3 A   
+EXF2 . . . . . . . . . .  B ADDR   00C8H.6 A   
+F0 . . . . . . . . . . .  B ADDR   00D0H.5 A   
+IE . . . . . . . . . . .  D ADDR   00A8H   A   
+IE0. . . . . . . . . . .  B ADDR   0088H.1 A   
+IE1. . . . . . . . . . .  B ADDR   0088H.3 A   
+INT0 . . . . . . . . . .  B ADDR   00B0H.2 A   
+INT1 . . . . . . . . . .  B ADDR   00B0H.3 A   
+IP . . . . . . . . . . .  D ADDR   00B8H   A   
+IT0. . . . . . . . . . .  B ADDR   0088H.0 A   
+IT1. . . . . . . . . . .  B ADDR   0088H.2 A   
+OV . . . . . . . . . . .  B ADDR   00D0H.2 A   
+P. . . . . . . . . . . .  B ADDR   00D0H.0 A   
+P0 . . . . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . . . . .  D ADDR   00B0H   A   
+PCON . . . . . . . . . .  D ADDR   0087H   A   
+PEGA_VALOR_DEBITO. . . .  C ADDR   252AH   A   
+PS . . . . . . . . . . .  B ADDR   00B8H.4 A   
+PSW. . . . . . . . . . .  D ADDR   00D0H   A   
+PT0. . . . . . . . . . .  B ADDR   00B8H.1 A   
+PT1. . . . . . . . . . .  B ADDR   00B8H.3 A   
+PT2. . . . . . . . . . .  B ADDR   00B8H.5 A   
+PULA_FIM_VALOR_DEBITO. .  C ADDR   2544H   A   
+PULA_VALOR_3_EIXOS . . .  C ADDR   253FH   A   
+PULA_VALOR_CARRO . . . .  C ADDR   2538H   A   
+PULA_VALOR_MOTO. . . . .  C ADDR   2531H   A   
+PX0. . . . . . . . . . .  B ADDR   00B8H.0 A   
+PX1. . . . . . . . . . .  B ADDR   00B8H.2 A   
+RB8. . . . . . . . . . .  B ADDR   0098H.2 A   
+RCAP2H . . . . . . . . .  D ADDR   00CBH   A   
+RCAP2L . . . . . . . . .  D ADDR   00CAH   A   
+RCLK . . . . . . . . . .  B ADDR   00C8H.5 A   
+RD . . . . . . . . . . .  B ADDR   00B0H.7 A   
+A51 MACRO ASSEMBLER  PROJETO                                                              10/07/2015 21:28:13 PAGE     4
+
+REINICIA_CANCELA . . . .  C ADDR   250FH   A   
+REN. . . . . . . . . . .  B ADDR   0098H.4 A   
+RI . . . . . . . . . . .  B ADDR   0098H.0 A   
+RS0. . . . . . . . . . .  B ADDR   00D0H.3 A   
+RS1. . . . . . . . . . .  B ADDR   00D0H.4 A   
+RXD. . . . . . . . . . .  B ADDR   00B0H.0 A   
+SBUF . . . . . . . . . .  D ADDR   0099H   A   
+SCON . . . . . . . . . .  D ADDR   0098H   A   
+SM0. . . . . . . . . . .  B ADDR   0098H.7 A   
+SM1. . . . . . . . . . .  B ADDR   0098H.6 A   
+SM2. . . . . . . . . . .  B ADDR   0098H.5 A   
+SP . . . . . . . . . . .  D ADDR   0081H   A   
+T0 . . . . . . . . . . .  B ADDR   00B0H.4 A   
+T1 . . . . . . . . . . .  B ADDR   00B0H.5 A   
+T2 . . . . . . . . . . .  B ADDR   0090H.0 A   
+T2CON. . . . . . . . . .  D ADDR   00C8H   A   
+T2EX . . . . . . . . . .  B ADDR   0090H.1 A   
+TB8. . . . . . . . . . .  B ADDR   0098H.3 A   
+TCLK . . . . . . . . . .  B ADDR   00C8H.4 A   
+TCON . . . . . . . . . .  D ADDR   0088H   A   
+TF0. . . . . . . . . . .  B ADDR   0088H.5 A   
+TF1. . . . . . . . . . .  B ADDR   0088H.7 A   
+TF2. . . . . . . . . . .  B ADDR   00C8H.7 A   
+TH0. . . . . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . . . . .  D ADDR   008DH   A   
+TH2. . . . . . . . . . .  D ADDR   00CDH   A   
+TI . . . . . . . . . . .  B ADDR   0098H.1 A   
+TL0. . . . . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . . . . .  D ADDR   008BH   A   
+TL2. . . . . . . . . . .  D ADDR   00CCH   A   
+TMOD . . . . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . . . . .  B ADDR   0088H.6 A   
+TR2. . . . . . . . . . .  B ADDR   00C8H.2 A   
+TXD. . . . . . . . . . .  B ADDR   00B0H.1 A   
+VALOR_DEBITO . . . . . .    REG    R7          
+WR . . . . . . . . . . .  B ADDR   00B0H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

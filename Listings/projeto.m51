@@ -1,0 +1,190 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/07/2015  21:28:13  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\PROGRAMS\KEIL_V5\C51\BIN\BL51.EXE .\Objects\projeto.obj TO .\Objects\projeto PRINT (.\Listings\projeto.m51) RAMSIZE (
+>> 256)
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\projeto.obj (PROJETO)
+
+
+LINK MAP OF MODULE:  .\Objects\projeto (PROJETO)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     2560H     ABSOLUTE     
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\projeto (PROJETO)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        PROJETO
+  C:2549H         SYMBOL        ABRE_CANCELA
+  B:00D0H.6       SYMBOL        AC
+  D:00E0H         SYMBOL        ACC
+  C:2550H         SYMBOL        AGUARDA_N_SEGUNDOS
+  C:2545H         SYMBOL        AGUARDA_PAGAMENTO
+  C:254CH         SYMBOL        AGUARDA_PASSAGEM_VEICULO
+  C:2550H         SYMBOL        ANS_LOOP
+  C:2552H         SYMBOL        ANS_SEC_LOOP
+  C:254CH         SYMBOL        APV_LOOP
+  C:2545H         SYMBOL        AP_LOOP
+  D:00F0H         SYMBOL        B
+  B:00C8H.0       SYMBOL        CP_RL2
+  B:00D0H.7       SYMBOL        CY
+  B:00C8H.1       SYMBOL        C_T2
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  B:00A8H.7       SYMBOL        EA
+  C:2524H         SYMBOL        EPV_LOOP
+  B:00A8H.4       SYMBOL        ES
+  C:2524H         SYMBOL        ESPERA_POR_VEICULO
+  B:00A8H.1       SYMBOL        ET0
+  B:00A8H.3       SYMBOL        ET1
+  B:00A8H.5       SYMBOL        ET2
+  B:00A8H.0       SYMBOL        EX0
+  B:00A8H.2       SYMBOL        EX1
+  B:00C8H.3       SYMBOL        EXEN2
+  B:00C8H.6       SYMBOL        EXF2
+  B:00D0H.5       SYMBOL        F0
+  D:00A8H         SYMBOL        IE
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/07/2015  21:28:13  PAGE 2
+
+
+  B:0088H.1       SYMBOL        IE0
+  B:0088H.3       SYMBOL        IE1
+  B:00B0H.2       SYMBOL        INT0
+  B:00B0H.3       SYMBOL        INT1
+  D:00B8H         SYMBOL        IP
+  B:0088H.0       SYMBOL        IT0
+  B:0088H.2       SYMBOL        IT1
+  B:00D0H.2       SYMBOL        OV
+  B:00D0H.0       SYMBOL        P
+  D:0080H         SYMBOL        P0
+  D:0090H         SYMBOL        P1
+  D:00A0H         SYMBOL        P2
+  D:00B0H         SYMBOL        P3
+  D:0087H         SYMBOL        PCON
+  C:252AH         SYMBOL        PEGA_VALOR_DEBITO
+  B:00B8H.4       SYMBOL        PS
+  D:00D0H         SYMBOL        PSW
+  B:00B8H.1       SYMBOL        PT0
+  B:00B8H.3       SYMBOL        PT1
+  B:00B8H.5       SYMBOL        PT2
+  C:2544H         SYMBOL        PULA_FIM_VALOR_DEBITO
+  C:253FH         SYMBOL        PULA_VALOR_3_EIXOS
+  C:2538H         SYMBOL        PULA_VALOR_CARRO
+  C:2531H         SYMBOL        PULA_VALOR_MOTO
+  B:00B8H.0       SYMBOL        PX0
+  B:00B8H.2       SYMBOL        PX1
+  B:0098H.2       SYMBOL        RB8
+  D:00CBH         SYMBOL        RCAP2H
+  D:00CAH         SYMBOL        RCAP2L
+  B:00C8H.5       SYMBOL        RCLK
+  B:00B0H.7       SYMBOL        RD
+  C:250FH         SYMBOL        REINICIA_CANCELA
+  B:0098H.4       SYMBOL        REN
+  B:0098H.0       SYMBOL        RI
+  B:00D0H.3       SYMBOL        RS0
+  B:00D0H.4       SYMBOL        RS1
+  B:00B0H.0       SYMBOL        RXD
+  D:0099H         SYMBOL        SBUF
+  D:0098H         SYMBOL        SCON
+  B:0098H.7       SYMBOL        SM0
+  B:0098H.6       SYMBOL        SM1
+  B:0098H.5       SYMBOL        SM2
+  D:0081H         SYMBOL        SP
+  B:00B0H.4       SYMBOL        T0
+  B:00B0H.5       SYMBOL        T1
+  B:0090H.0       SYMBOL        T2
+  D:00C8H         SYMBOL        T2CON
+  B:0090H.1       SYMBOL        T2EX
+  B:0098H.3       SYMBOL        TB8
+  B:00C8H.4       SYMBOL        TCLK
+  D:0088H         SYMBOL        TCON
+  B:0088H.5       SYMBOL        TF0
+  B:0088H.7       SYMBOL        TF1
+  B:00C8H.7       SYMBOL        TF2
+  D:008CH         SYMBOL        TH0
+  D:008DH         SYMBOL        TH1
+  D:00CDH         SYMBOL        TH2
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/07/2015  21:28:13  PAGE 3
+
+
+  B:0098H.1       SYMBOL        TI
+  D:008AH         SYMBOL        TL0
+  D:008BH         SYMBOL        TL1
+  D:00CCH         SYMBOL        TL2
+  D:0089H         SYMBOL        TMOD
+  B:0088H.4       SYMBOL        TR0
+  B:0088H.6       SYMBOL        TR1
+  B:00C8H.2       SYMBOL        TR2
+  B:00B0H.1       SYMBOL        TXD
+  B:00B0H.6       SYMBOL        WR
+  C:0000H         LINE#         5
+  C:2500H         LINE#         9
+  C:2503H         LINE#         10
+  C:2506H         LINE#         11
+  C:2509H         LINE#         12
+  C:250CH         LINE#         13
+  C:250FH         LINE#         20
+  C:2512H         LINE#         23
+  C:2514H         LINE#         26
+  C:2516H         LINE#         29
+  C:2518H         LINE#         31
+  C:251AH         LINE#         33
+  C:251CH         LINE#         35
+  C:251EH         LINE#         37
+  C:2520H         LINE#         39
+  C:2522H         LINE#         41
+  C:2524H         LINE#         49
+  C:2527H         LINE#         50
+  C:2529H         LINE#         51
+  C:252AH         LINE#         57
+  C:252DH         LINE#         58
+  C:252FH         LINE#         59
+  C:2531H         LINE#         62
+  C:2534H         LINE#         63
+  C:2536H         LINE#         64
+  C:2538H         LINE#         67
+  C:253BH         LINE#         68
+  C:253DH         LINE#         69
+  C:253FH         LINE#         72
+  C:2542H         LINE#         73
+  C:2544H         LINE#         76
+  C:2545H         LINE#         82
+  C:2548H         LINE#         83
+  C:2549H         LINE#         88
+  C:254BH         LINE#         89
+  C:254CH         LINE#         95
+  C:254FH         LINE#         96
+  C:2550H         LINE#         102
+  C:2552H         LINE#         104
+  C:2554H         LINE#         105
+  C:2557H         LINE#         106
+  C:2559H         LINE#         107
+  C:255BH         LINE#         108
+  C:255DH         LINE#         109
+  C:255FH         LINE#         110
+  -------         ENDMOD        PROJETO
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/07/2015  21:28:13  PAGE 4
+
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0063H BYTE ( 4%) *
+******************************************************************************
+
+Program Size: data=8.0 xdata=0 code=9568
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
