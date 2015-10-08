@@ -1,5 +1,8 @@
 #include <reg52.inc>
 
+LCD_COMANDO  EQU 0FF10h
+LCD_DADO	 EQU 0FF11h
+
 VALOR_DEBITO EQU R7
 
 JMP 2500H
@@ -12,11 +15,15 @@ MOV RCAP2L, #0B0h
 MOV TH2, 	RCAP2H
 MOV TL2, 	RCAP2L
 
-
+; SETUP LCD
+CALL LCD_INIT_STEP1
+CALL LCD_INIT_STEP1
+CALL LCD_INIT_STEP2
+CALL LCD_LIMPA_TELA
 
 REINICIA_CANCELA:
 
-	; LIMPA P1
+	; LIMPA P1 (CANCELA SERA FECHADA AQUI CASO ESTEJA ABERTA)
 	MOV P1, #0
 
 	; AGUARDA ATÉ VEICULO ATIVAR O PRIMEIRO SENSOR E SALVA VALOR DA PORTA NO ACUMULADOR
@@ -32,8 +39,7 @@ REINICIA_CANCELA:
 
 	CALL AGUARDA_PASSAGEM_VEICULO
 
-	MOV R0, #4
-
+	MOV R0, #4 ; PARAMETRO PARA A FUNCAO
 	CALL AGUARDA_N_SEGUNDOS
 
 JMP REINICIA_CANCELA
@@ -109,4 +115,85 @@ AGUARDA_N_SEGUNDOS:
 	DJNZ R0, ANS_LOOP
 RET		
 
+
+
+
+
+;------------------------------------------------------
+; STEPS DE INICIALIZACAO DO LCD
+LCD_INIT_STEP1:
+	MOV DPTR, #LCD_COMANDO
+	MOV A, #38h
+	MOVX @DPTR, A		
+	CALL ATRASO_LCD
+RET
+
+;------------------------------------------------------
+; STEPS DE INICIALIZACAO DO LCD
+LCD_INIT_STEP2:
+	; Controle LCD - 0 0 0 0 1 D C B
+	; 			   - 0 0 0 0 1 1 0 0 ou 0Ch
+	
+	MOV DPTR, #LCD_COMANDO
+	MOV A, #0Ch
+	MOVX @DPTR, A	
+	CALL ATRASO_LCD
+	
+	; Exibição LCD - 0 0 0 0 0 1 I/D S
+	; 			   - 0 0 0 0 1 1  1  0  ou 06h
+	MOV DPTR, #LCD_COMANDO
+	MOV A, #06h
+	MOVX @DPTR, A	
+	CALL ATRASO_LCD
+RET
+
+;------------------------------------------------------
+; LIMPA TELA DO LCD
+LCD_LIMPA_TELA:
+	MOV DPTR, #LCD_COMANDO
+	MOV A, #1
+	MOVX @DPTR, A	
+	CALL ATRASO_LIMPA_LCD
+RET
+
+;------------------------------------------------------
+; ENVIA PARA O LCD O VALORE DO ACUMULADOR
+LCD_ENVIA_CHAR:
+	MOV DPTR, #LCD_DADO
+	MOVX @DPTR, A	
+	CALL ATRASO_LCD
+RET
+
+
+;------------------------------------------------------
+; Atraso necessário para o display 
+ATRASO_LCD: MOV R0, #18
+			DJNZ R0, $
+			RET
+
+;------------------------------------------------------			
+; Atraso necessário para limpar o display - 41 x 40us = 1,65ms
+ATRASO_LIMPA_LCD: MOV  R1, #41
+				  VOLTA_ATRASO_LIMPA_LCD:
+				  CALL ATRASO_LCD
+				  DJNZ R1, VOLTA_ATRASO_LIMPA_LCD
+				  RET
+
+
+
+
+
+
+ORG 5000H
+	MSG_MOTO:
+	DB "Motocicleta", 0
+ORG 5050H
+	MSG_CARRO:
+	DB "Carro Passeio", 0
+ORG 5100H
+	MSG_3_EIXOS:
+	DB "Carro de 3 eixos", 0
+ORG 5150H
+	MSG_4_EIXOS:
+	DB "Carro de 4 eixos ou mais", 0
 END
