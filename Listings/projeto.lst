@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     1
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -18,13 +18,13 @@ LOC  OBJ            LINE     SOURCE
                 +1   108     
                      109     
                      110     
-  001E               111     TEMPO_LIGA_ALERTA EQU 30
-  0002               112     TEMPO_LUZ_ALERTA EQU 2
-                     113     
-  FF10               114     LCD_COMANDO  EQU 0FF10h
-  FF11               115     LCD_DADO         EQU 0FF11h
-                     116     
-  REG                117     VALOR_PAGO EQU R6
+  0001               111     TEMPO_OPERACAO_MOEDA EQU 1
+  001E               112     TEMPO_LIGA_ALERTA EQU 30
+  0002               113     TEMPO_LUZ_ALERTA EQU 2
+                     114     
+  FF10               115     LCD_COMANDO  EQU 0FF10h
+  FF11               116     LCD_DADO         EQU 0FF11h
+                     117     
   REG                118     VALOR_DEBITO EQU R7
                      119     
 0000 022500          120     JMP 2500H
@@ -43,9 +43,9 @@ LOC  OBJ            LINE     SOURCE
 250F D2AF            133     SETB EA
                      134     
                      135     ; SETUP LCD
-2511 D12B            136     CALL LCD_INIT_STEP1
-2513 D12B            137     CALL LCD_INIT_STEP1
-2515 D134            138     CALL LCD_INIT_STEP2
+2511 D13C            136     CALL LCD_INIT_STEP1
+2513 D13C            137     CALL LCD_INIT_STEP1
+2515 D145            138     CALL LCD_INIT_STEP2
                      139             
 2517                 140     REINICIA_CANCELA:
                      141     
@@ -54,25 +54,25 @@ LOC  OBJ            LINE     SOURCE
                      144     
                      145             ; AGUARDA ATÉ VEICULO ATIVAR O PRIMEIRO SENSOR E SALVA VALOR DA PORTA NO ACUMULADO
                              R
-2519 B145            146             CALL ESPERA_POR_VEICULO
+2519 B143            146             CALL ESPERA_POR_VEICULO
                      147     
                      148             ; PEGA VALOR DEVIDO E COLOCA NA VARIAVEL "VALOR_DEBITO"
-251B B14B            149             CALL PEGA_VALOR_DEBITO
+251B B149            149             CALL PEGA_VALOR_DEBITO
                      150     
                      151             ; AGUARDA PELO PAGAMENTO DO DEBITO
-251D B173            152             CALL AGUARDA_PAGAMENTO
+251D B171            152             CALL AGUARDA_PAGAMENTO
                      153             
-251F 7802            154             MOV R0, #2
-2521 D113            155             CALL AGUARDA_N_SEGUNDOS
+251F 7802            154             MOV R0, #2 ; PARAMETRO PARA A FUNCAO
+2521 D124            155             CALL AGUARDA_N_SEGUNDOS
                      156             
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     2
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     2
 
-2523 D105            157             CALL ABRE_CANCELA
+2523 D116            157             CALL ABRE_CANCELA
                      158     
-2525 D10F            159             CALL AGUARDA_PASSAGEM_VEICULO
+2525 D120            159             CALL AGUARDA_PASSAGEM_VEICULO
                      160     
 2527 7804            161             MOV R0, #4 ; PARAMETRO PARA A FUNCAO
-2529 D113            162             CALL AGUARDA_N_SEGUNDOS
+2529 D124            162             CALL AGUARDA_N_SEGUNDOS
                      163     
 252B 80EA            164     JMP REINICIA_CANCELA
                      165     
@@ -84,444 +84,464 @@ LOC  OBJ            LINE     SOURCE
                      171     ; RESETA CANCELA PAR AO ESTADO INICIAL
 252F                 172     REINICIA:
 252F 7F00            173             MOV VALOR_DEBITO, #0
-2531 7E00            174             MOV VALOR_PAGO, #0
-                     175             ;MOV P1, #0 ; Utilizar somente no simulador
-2533 C296            176             CLR P1.6
-2535 C297            177             CLR P1.7
-2537 C2B2            178             CLR P3.2
-2539 C2B3            179             CLR P3.3
-253B C2B5            180             CLR P3.5
-253D D145            181             CALL LCD_LIMPA_TELA
-253F 903000          182             MOV DPTR, #MSG_AGUARDANDO_VEICULO
-2542 D193            183             CALL LCD_ENVIA_FRASE
-2544 22              184     RET
-                     185     
-                     186     ;------------------------------------------------------
-                     187     ; AGUARDA ATE O VEICULO CHEGAR NO S1
-2545                 188     ESPERA_POR_VEICULO: 
-2545                 189             EPV_LOOP:
-2545 3090FD          190             JNB P1.0, EPV_LOOP
-2548 E590            191             MOV A, P1
-254A 22              192     RET
-                     193     
-                     194     ;------------------------------------------------------
-                     195     ; COM BASE NO VALOR DO ACUMULADOR DETERMINA VALOR DO DEBITO PARA O VEICULO (GUARDA RESULTAD
+                     174             ;MOV P1, #0 ; Utilizar somente no simulador
+2531 C296            175             CLR P1.6
+2533 C297            176             CLR P1.7
+2535 C2B2            177             CLR P3.2
+2537 C2B3            178             CLR P3.3
+2539 C2B5            179             CLR P3.5
+253B D156            180             CALL LCD_LIMPA_TELA
+253D 903000          181             MOV DPTR, #MSG_AGUARDANDO_VEICULO
+2540 D1A4            182             CALL LCD_ENVIA_FRASE
+2542 22              183     RET
+                     184     
+                     185     ;------------------------------------------------------
+                     186     ; AGUARDA ATE O VEICULO CHEGAR NO S1
+2543                 187     ESPERA_POR_VEICULO: 
+2543                 188             EPV_LOOP:
+2543 3090FD          189             JNB P1.0, EPV_LOOP
+2546 E590            190             MOV A, P1
+2548 22              191     RET
+                     192     
+                     193     ;------------------------------------------------------
+                     194     ; COM BASE NO VALOR DO ACUMULADOR DETERMINA VALOR DO DEBITO PARA O VEICULO (GUARDA RESULTAD
                              O NA VARIAVEL "VALOR_DEBITO")
-254B                 196     PEGA_VALOR_DEBITO:      
-                     197             
-254B 309307          198             JNB P1.3, PULA_VALOR_4_EIXOS    
-254E 7F0A            199                     MOV VALOR_DEBITO, #10
-2550 903200          200                     MOV DPTR, #MSG_4_EIXOS          
-2553 8019            201                     JMP PULA_FIM_VALOR_DEBITO
-2555                 202             PULA_VALOR_4_EIXOS:
-                     203             
-2555 309207          204             JNB P1.2, PULA_VALOR_3_EIXOS
-2558 7F07            205                     MOV VALOR_DEBITO, #7
-255A 903150          206                     MOV DPTR, #MSG_3_EIXOS
-255D 800F            207                     JMP PULA_FIM_VALOR_DEBITO
-255F                 208             PULA_VALOR_3_EIXOS:
-                     209             
-255F 309107          210             JNB P1.1, PULA_VALOR_CARRO
-2562 7F05            211                     MOV VALOR_DEBITO, #5
-2564 903100          212                     MOV DPTR, #MSG_CARRO
-2567 8005            213                     JMP PULA_FIM_VALOR_DEBITO
-2569                 214             PULA_VALOR_CARRO:
-                     215             
-2569 7F00            216             MOV VALOR_DEBITO, #0
-256B 903050          217             MOV DPTR, #MSG_MOTO
-                     218                     
-256E                 219             PULA_FIM_VALOR_DEBITO:
-256E D145            220             CALL LCD_LIMPA_TELA
-2570 D193            221             CALL LCD_ENVIA_FRASE
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     3
+2549                 195     PEGA_VALOR_DEBITO:      
+                     196             
+2549 309307          197             JNB P1.3, PULA_VALOR_4_EIXOS    
+254C 7F0A            198                     MOV VALOR_DEBITO, #10
+254E 903200          199                     MOV DPTR, #MSG_4_EIXOS          
+2551 8019            200                     JMP PULA_FIM_VALOR_DEBITO
+2553                 201             PULA_VALOR_4_EIXOS:
+                     202             
+2553 309207          203             JNB P1.2, PULA_VALOR_3_EIXOS
+2556 7F07            204                     MOV VALOR_DEBITO, #7
+2558 903150          205                     MOV DPTR, #MSG_3_EIXOS
+255B 800F            206                     JMP PULA_FIM_VALOR_DEBITO
+255D                 207             PULA_VALOR_3_EIXOS:
+                     208             
+255D 309107          209             JNB P1.1, PULA_VALOR_CARRO
+2560 7F05            210                     MOV VALOR_DEBITO, #5
+2562 903100          211                     MOV DPTR, #MSG_CARRO
+2565 8005            212                     JMP PULA_FIM_VALOR_DEBITO
+2567                 213             PULA_VALOR_CARRO:
+                     214             
+2567 7F00            215             MOV VALOR_DEBITO, #0
+2569 903050          216             MOV DPTR, #MSG_MOTO
+                     217                     
+256C                 218             PULA_FIM_VALOR_DEBITO:
+256C D156            219             CALL LCD_LIMPA_TELA
+256E D1A4            220             CALL LCD_ENVIA_FRASE
+2570 22              221     RET
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     3
 
-2572 22              222     RET
-                     223     
-                     224     ;------------------------------------------------------
-                     225     ; AGUARDA PAGAMENTO DO DEBITO
-2573                 226     AGUARDA_PAGAMENTO:
-                     227             ; SE VALOR_DEBITO FOR 0 RETORNA IMEDIATAMENTE
-2573 EF              228             MOV A, VALOR_DEBITO
-2574 7001            229             JNZ AP_RUN
-2576 22              230                     RET
-2577                 231             AP_RUN:
-                     232     
-                     233             ; Habilita RN (Recebimento de notas)
-2577 D296            234             SETB P1.6
-                     235             ; DEFINE PARAMETRO PARA ITERACOES A CADA SEGUNDO
-2579 7801            236             MOV R0, #1
-                     237             
-257B B1B6            238             CALL RESETA_LUZ_ALERTA
-257D                 239             AP_LOOP:
-                     240             
-                     241             
-257D D145            242                     CALL LCD_LIMPA_TELA
-257F D193            243                     CALL LCD_ENVIA_FRASE
-2581 C083            244                     PUSH DPH
-2583 C082            245                     PUSH DPL
-                     246                     
-2585 D16F            247                     CALL LCD_SEGUNDA_LINHA
-2587 903350          248                     MOV DPTR, #MSG_DEBITO
-258A D193            249                     CALL LCD_ENVIA_FRASE
-258C D082            250                     POP DPL
-258E D083            251                     POP DPH
-2590 B1FC            252                     CALL LCD_ENVIA_VALOR_A
+                     222     
+                     223     ;------------------------------------------------------
+                     224     ; AGUARDA PAGAMENTO DO DEBITO
+2571                 225     AGUARDA_PAGAMENTO:
+                     226             ; SE VALOR_DEBITO FOR 0 RETORNA IMEDIATAMENTE
+2571 EF              227             MOV A, VALOR_DEBITO
+2572 7001            228             JNZ AP_RUN
+2574 22              229                     RET
+2575                 230             AP_RUN:
+                     231     
+                     232             ; Habilita RN (Recebimento de notas)
+2575 D296            233             SETB P1.6
+                     234             ; DEFINE PARAMETRO PARA ITERACOES A CADA SEGUNDO
+2577 7801            235             MOV R0, #1
+                     236             
+2579 B1B0            237             CALL RESETA_LUZ_ALERTA
+257B                 238             AP_LOOP:
+                     239             
+                     240                     
+257B C083            241                     PUSH DPH
+257D C082            242                     PUSH DPL
+                     243                     
+257F D180            244                     CALL LCD_SEGUNDA_LINHA
+2581 903350          245                     MOV DPTR, #MSG_DEBITO
+2584 D1A4            246                     CALL LCD_ENVIA_FRASE
+2586 B1FC            247                     CALL LCD_ENVIA_VALOR_A
+                     248                     
+2588 D082            249                     POP DPL
+258A D083            250                     POP DPH
+                     251                     
+                     252                     
                      253                     
-                     254                     
-2592 C3              255                     CLR C
-                     256                     
-                     257                     ; CHECA SE FOI INSERIDA NOTA DE 2 (N2)
-2593 309406          258                     JNB     P1.4, AP_PULA_NOTA_2    
-2596 9402            259                             SUBB A, #2
-                     260                             ;CLR P1.4
-2598 B1B6            261                             CALL RESETA_LUZ_ALERTA
-259A 8009            262                             JMP AP_FORA_NOTA
-259C                 263                     AP_PULA_NOTA_2:
-                     264     
-259C 309506          265                     JNB     P1.5, AP_PULA_NOTA_5
-259F 9405            266                             SUBB A, #5
-                     267                             ;CLR P1.5
-25A1 B1B6            268                             CALL RESETA_LUZ_ALERTA
-25A3 8000            269                             JMP AP_FORA_NOTA
-25A5                 270                     AP_PULA_NOTA_5:
-                     271                     
-25A5                 272                     AP_FORA_NOTA:
-                     273                     
-                     274                     ; CASO VALOR FIQUE NEGATIVO SAI DO LOOP
-25A5 4008            275                     JC AP_TROCO
-                     276                     
-                     277                     ; EXECUTA VERIFICAÇÃO E ATIVA/DESATIVA LUZ SE NECESSARIO
-25A7 B1BD            278                     CALL STATUS_LUZ_ALERTA          
-                     279     
-25A9 D113            280                     CALL AGUARDA_N_SEGUNDOS
-                     281     
-25AB 70D0            282             JNZ AP_LOOP
-                     283             
-25AD 8004            284             JMP AP_RET
-                     285             
-25AF                 286             AP_TROCO:
-                     287             ; Desabilita RN (Recebimento de notas)
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     4
+258C C3              254                     CLR C
+                     255                     
+                     256                     ; CHECA SE FOI INSERIDA NOTA DE 2 (N2)
+258D 309406          257                     JNB     P1.4, AP_PULA_NOTA_2    
+2590 9402            258                             SUBB A, #2
+                     259                             ;CLR P1.4
+2592 B1B0            260                             CALL RESETA_LUZ_ALERTA
+2594 8009            261                             JMP AP_FORA_NOTA
+2596                 262                     AP_PULA_NOTA_2:
+                     263     
+2596 309506          264                     JNB     P1.5, AP_PULA_NOTA_5
+2599 9405            265                             SUBB A, #5
+                     266                             ;CLR P1.5
+259B B1B0            267                             CALL RESETA_LUZ_ALERTA
+259D 8000            268                             JMP AP_FORA_NOTA
+259F                 269                     AP_PULA_NOTA_5:
+                     270                     
+259F                 271                     AP_FORA_NOTA:
+                     272                     
+                     273                     ; CASO VALOR FIQUE NEGATIVO SAI DO LOOP
+259F 4008            274                     JC AP_TROCO
+                     275                     
+                     276                     ; EXECUTA VERIFICAÇÃO E ATIVA/DESATIVA LUZ SE NECESSARIO
+25A1 B1B7            277                     CALL STATUS_LUZ_ALERTA          
+                     278     
+25A3 D124            279                     CALL AGUARDA_N_SEGUNDOS
+                     280     
+25A5 70D4            281             JNZ AP_LOOP
+                     282             
+25A7 8004            283             JMP AP_RET
+                     284             
+25A9                 285             AP_TROCO:
+                     286             ; Desabilita RN (Recebimento de notas)
+25A9 C296            287             CLR P1.6
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     4
 
-25AF C296            288             CLR P1.6
-25B1 B1CF            289                     CALL DA_TROCO
-                     290     
-25B3                 291             AP_RET:
-                     292             ; Desabilita RN (Recebimento de notas)
-25B3 C296            293             CLR P1.6
-                     294     
-                     295             
-25B5 22              296     RET
-                     297     
-25B6                 298     RESETA_LUZ_ALERTA:
-25B6 791E            299             MOV R1, #TEMPO_LIGA_ALERTA
-25B8 7A01            300             MOV R2, #1
-25BA C2B5            301             CLR P3.5
-25BC 22              302     RET
-                     303     
-25BD                 304     STATUS_LUZ_ALERTA:
-25BD D90F            305     DJNZ R1, AP_PULA_LUZ
-25BF 7901            306             MOV R1, #1
-25C1 DA0B            307             DJNZ R2, AP_PULA_LUZ
-25C3 7A02            308                     MOV R2, #TEMPO_LUZ_ALERTA
-25C5 20B504          309                     JB P3.5, AP_DESATIVA_LUZ
-25C8 D2B5            310                             SETB P3.5
-25CA 8002            311                             JMP AP_PULA_LUZ
-25CC                 312                     AP_DESATIVA_LUZ:
-25CC C2B5            313                             CLR P3.5                        
-25CE                 314     AP_PULA_LUZ:
-25CE 22              315     RET
-                     316     
-                     317     ;------------------------------------------------------
-                     318     ; DA TROCO AO MOTORISTA ATE O VALOR DO ACUMULADOR VIRAR 0
-25CF                 319     DA_TROCO:       
-25CF C3              320             CLR C
-                     321             ;CONVERTE PARA VALOR ABSOLUTO
-25D0 F8              322             MOV R0, A
-25D1 74FF            323             MOV A, #255     
-25D3 98              324             SUBB A, R0
-25D4 04              325             INC A
+25AB B1C9            288                     CALL DA_TROCO
+                     289     
+25AD                 290             AP_RET:
+                     291             ; Desabilita RN (Recebimento de notas)
+25AD C296            292             CLR P1.6
+                     293     
+                     294             
+25AF 22              295     RET
+                     296     
+25B0                 297     RESETA_LUZ_ALERTA:
+25B0 791E            298             MOV R1, #TEMPO_LIGA_ALERTA
+25B2 7A01            299             MOV R2, #1
+25B4 C2B5            300             CLR P3.5
+25B6 22              301     RET
+                     302     
+25B7                 303     STATUS_LUZ_ALERTA:
+25B7 D90F            304     DJNZ R1, AP_PULA_LUZ
+25B9 7901            305             MOV R1, #1
+25BB DA0B            306             DJNZ R2, AP_PULA_LUZ
+25BD 7A02            307                     MOV R2, #TEMPO_LUZ_ALERTA
+25BF 20B504          308                     JB P3.5, AP_DESATIVA_LUZ
+25C2 D2B5            309                             SETB P3.5
+25C4 8002            310                             JMP AP_PULA_LUZ
+25C6                 311                     AP_DESATIVA_LUZ:
+25C6 C2B5            312                             CLR P3.5                        
+25C8                 313     AP_PULA_LUZ:
+25C8 22              314     RET
+                     315     
+                     316     ;------------------------------------------------------
+                     317     ; DA TROCO AO MOTORISTA ATE O VALOR DO ACUMULADOR VIRAR 0
+25C9                 318     DA_TROCO:       
+25C9 C3              319             CLR C
+                     320             ;CONVERTE PARA VALOR ABSOLUTO
+25CA F8              321             MOV R0, A
+25CB 74FF            322             MOV A, #255     
+25CD 98              323             SUBB A, R0
+25CE 04              324             INC A
+                     325             
                      326             
-                     327             
-                     328             ; 1 SEGUNDO ENTRE AS OPERAÇÕES
-25D5 7801            329             MOV R0, #1
-                     330                             
-25D7                 331             DT_LOOP:
-25D7 C3              332                     CLR C
-                     333             
-25D8 B1F2            334                     CALL LCD_ESCREVE_TROCO
-                     335                     
-                     336                     ; LIBERA MOEDA (LM)
-25DA D2B3            337                     SETB P3.3               
-25DC D113            338                     CALL AGUARDA_N_SEGUNDOS
-                     339     
-                     340                     ; FECHA LIBERA MOEDA (LM)
-25DE C2B3            341                     CLR P3.3
-25E0 D113            342                     CALL AGUARDA_N_SEGUNDOS
-                     343     
-                     344                     ; ABRE SM (REPOEM MOEDA)
-25E2 D2B2            345                     SETB P3.2
-25E4 D113            346                     CALL AGUARDA_N_SEGUNDOS
-                     347     
-                     348                     ; FECHA SM
-25E6 C2B2            349                     CLR P3.2
-25E8 D113            350                     CALL AGUARDA_N_SEGUNDOS
+                     327             ; 1 SEGUNDO ENTRE AS OPERAÇÕES
+25CF 7801            328             MOV R0, #TEMPO_OPERACAO_MOEDA
+                     329                                     
+25D1                 330             DT_LOOP:
+25D1 C3              331                     CLR C
+                     332             
+25D2 B1F2            333                     CALL LCD_ESCREVE_TROCO
+                     334                     
+25D4 B1E0            335                     CALL REPOEM_MOEDA
+                     336                     
+25D6 B1E9            337                     CALL LIBERA_MOEDA               
+                     338                                     
+                     339                     
+25D8 C3              340                     CLR C
+25D9 9401            341                     SUBB A, #1
+                     342     
+25DB 70F4            343             JNZ DT_LOOP
+                     344             
+25DD B1F2            345             CALL LCD_ESCREVE_TROCO
+                     346     
+25DF 22              347     RET
+                     348     
+25E0                 349     REPOEM_MOEDA:
+                     350                     ; ABRE SM (REPOEM MOEDA)
                      351                     
-25EA C3              352                     CLR C
-25EB 9401            353                     SUBB A, #1
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     5
+25E0 D2B2            352                     SETB P3.2
+25E2 D124            353                     CALL AGUARDA_N_SEGUNDOS
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     5
 
                      354     
-25ED 70E8            355             JNZ DT_LOOP
-                     356             
-25EF B1F2            357             CALL LCD_ESCREVE_TROCO
-                     358     
-25F1 22              359     RET
-                     360     
-25F2                 361     LCD_ESCREVE_TROCO:
-25F2 D145            362             CALL LCD_LIMPA_TELA
-25F4 903250          363             MOV DPTR, #MSG_TROCO
-25F7 D193            364             CALL LCD_ENVIA_FRASE
-25F9 B1FC            365             CALL LCD_ENVIA_VALOR_A
-25FB 22              366     RET
-                     367     
-25FC                 368     LCD_ENVIA_VALOR_A:
-25FC C0E0            369                     PUSH ACC
-25FE 2430            370                     ADD A, #48
-2600 D184            371                     CALL LCD_ENVIA_CHAR
-2602 D0E0            372                     POP ACC
-2604 22              373     RET
-                     374     
-                     375     ;------------------------------------------------------
-                     376     ; SINALIZA ABERTURA DA CANCELA (AC = 1)
-2605                 377     ABRE_CANCELA: 
-2605 D145            378             CALL LCD_LIMPA_TELA
-2607 D297            379             SETB P1.7
-2609 903300          380             MOV DPTR, #MSG_CANCELA_ABERTA
-260C D193            381             CALL LCD_ENVIA_FRASE
-260E 22              382     RET
-                     383     
-                     384     ;------------------------------------------------------
-                     385     ; AGUARDA VEICULO PASSAR PELO PEDAGIO (S1 = 0 INDICA A PASSAGEM DO VEICULO)
-260F                 386     AGUARDA_PASSAGEM_VEICULO:
-260F                 387             APV_LOOP:
-260F 2090FD          388             JB P1.0, APV_LOOP
-2612 22              389     RET
-                     390             
-                     391     ;------------------------------------------------------
-                     392     ; AGUARDA N SEGUNDOS (R0 DEVE CONTER O NUMERO DE SEGUNDOS A SEREM ESPERADOS)
-2613                 393     AGUARDA_N_SEGUNDOS:
-2613 C000            394             PUSH 0
-2615 C001            395             PUSH 1
-2617                 396             ANS_LOOP:       
-2617 7914            397                     MOV R1, #20
-2619                 398                     ANS_SEC_LOOP:
-2619 C2CF            399                             CLR TF2
-261B D2CA            400                             SETB TR2
-261D 30CFFD          401                             JNB TF2, $      
-2620 C2CA            402                             CLR TR2                 
-2622 D9F5            403                     DJNZ R1, ANS_SEC_LOOP
-2624 D8F1            404             DJNZ R0, ANS_LOOP
-2626 D001            405             POP 1
-2628 D000            406             POP 0
-                     407     
-262A 22              408     RET             
-                     409     
-                     410     
-                     411     
-                     412     
-                     413     
-                     414     ;------------------------------------------------------
-                     415     ; STEPS DE INICIALIZACAO DO LCD
-262B                 416     LCD_INIT_STEP1:
-262B 90FF10          417             MOV DPTR, #LCD_COMANDO
-262E 7438            418             MOV A, #38h
-2630 F0              419             MOVX @DPTR, A           
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     6
+                     355                     ; FECHA SM
+25E4 C2B2            356                     CLR P3.2
+25E6 D124            357                     CALL AGUARDA_N_SEGUNDOS
+25E8 22              358     RET
+25E9                 359     LIBERA_MOEDA:
+                     360                     ; LIBERA MOEDA (LM)
+25E9 D2B3            361                     SETB P3.3               
+25EB D124            362                     CALL AGUARDA_N_SEGUNDOS
+                     363     
+                     364                     ; FECHA LIBERA MOEDA (LM)               
+25ED C2B3            365                     CLR P3.3
+25EF D124            366                     CALL AGUARDA_N_SEGUNDOS
+25F1 22              367     RET
+                     368     
+25F2                 369     LCD_ESCREVE_TROCO:
+25F2 D156            370             CALL LCD_LIMPA_TELA
+25F4 903250          371             MOV DPTR, #MSG_TROCO
+25F7 D1A4            372             CALL LCD_ENVIA_FRASE
+25F9 B1FC            373             CALL LCD_ENVIA_VALOR_A
+25FB 22              374     RET
+                     375     
+25FC                 376     LCD_ENVIA_VALOR_A:
+25FC C0E0            377                     PUSH ACC
+                     378                     
+                     379                     ; MIAAAUUU
+25FE B40A0A          380                     CJNE A, #10, LEVA_VALOR_NORMAL
+2601 7431            381                             MOV A, #49
+2603 D195            382                             CALL LCD_ENVIA_CHAR
+2605 7430            383                             MOV A, #48
+2607 D195            384                             CALL LCD_ENVIA_CHAR
+2609 8008            385                             JMP LEVA_RET
+260B                 386                     LEVA_VALOR_NORMAL:
+260B 2430            387                             ADD A, #48
+260D D195            388                             CALL LCD_ENVIA_CHAR
+260F 7420            389                             MOV A, #' '
+2611 D195            390                             CALL LCD_ENVIA_CHAR             
+2613                 391                     LEVA_RET:               
+2613 D0E0            392                     POP ACC
+2615 22              393     RET
+                     394     
+                     395     ;------------------------------------------------------
+                     396     ; SINALIZA ABERTURA DA CANCELA (AC = 1)
+2616                 397     ABRE_CANCELA: 
+2616 D156            398             CALL LCD_LIMPA_TELA
+2618 D297            399             SETB P1.7
+261A 903300          400             MOV DPTR, #MSG_CANCELA_ABERTA
+261D D1A4            401             CALL LCD_ENVIA_FRASE
+261F 22              402     RET
+                     403     
+                     404     ;------------------------------------------------------
+                     405     ; AGUARDA VEICULO PASSAR PELO PEDAGIO (S1 = 0 INDICA A PASSAGEM DO VEICULO)
+2620                 406     AGUARDA_PASSAGEM_VEICULO:
+2620                 407             APV_LOOP:
+2620 2090FD          408             JB P1.0, APV_LOOP
+2623 22              409     RET
+                     410             
+                     411     ;------------------------------------------------------
+                     412     ; AGUARDA N SEGUNDOS (R0 DEVE CONTER O NUMERO DE SEGUNDOS A SEREM ESPERADOS)
+2624                 413     AGUARDA_N_SEGUNDOS:
+2624 C000            414             PUSH 0
+2626 C001            415             PUSH 1
+2628                 416             ANS_LOOP:       
+2628 7914            417                     MOV R1, #20
+262A                 418                     ANS_SEC_LOOP:
+262A C2CF            419                             CLR TF2
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     6
 
-2631 D1B1            420             CALL ATRASO_LCD
-2633 22              421     RET
-                     422     
-                     423     ;------------------------------------------------------
-                     424     ; STEPS DE INICIALIZACAO DO LCD
-2634                 425     LCD_INIT_STEP2:
-                     426             ; Controle LCD - 0 0 0 0 1 D C B
-                     427             ;                          - 0 0 0 0 1 1 0 0 ou 0Ch
-                     428             
-2634 90FF10          429             MOV DPTR, #LCD_COMANDO
-2637 740C            430             MOV A, #0Ch
-2639 F0              431             MOVX @DPTR, A   
-263A D1B1            432             CALL ATRASO_LCD
-                     433             
-                     434             ; Exibição LCD - 0 0 0 0 0 1 I/D S
-                     435             ;                          - 0 0 0 0 1 1  1  0  ou 06h
-263C 90FF10          436             MOV DPTR, #LCD_COMANDO
-263F 7406            437             MOV A, #06h
-2641 F0              438             MOVX @DPTR, A   
-2642 D1B1            439             CALL ATRASO_LCD
-2644 22              440     RET
-                     441     
-                     442     ;------------------------------------------------------
-                     443     ; LIMPA TELA DO LCD
-2645                 444     LCD_LIMPA_TELA:
-2645 C0E0            445             PUSH ACC
-2647 C083            446             PUSH DPH
-2649 C082            447             PUSH DPL
-264B 90FF10          448             MOV DPTR, #LCD_COMANDO
-264E 7401            449             MOV A, #1
-2650 F0              450             MOVX @DPTR, A   
-2651 D1BA            451             CALL ATRASO_LIMPA_LCD
-2653 D082            452             POP DPL
-2655 D083            453             POP DPH
-2657 D0E0            454             POP ACC
-2659 22              455     RET
-                     456     
-265A                 457     LCD_PRIMEIRA_LINHA:
-265A C0E0            458             PUSH ACC
-265C C083            459             PUSH DPH
-265E C082            460             PUSH DPL
-2660 90FF10          461             MOV DPTR, #LCD_COMANDO
-2663 7480            462             MOV A, #80h
-2665 F0              463             MOVX @DPTR, A
-2666 D1B1            464             CALL ATRASO_LCD
-2668 D082            465             POP DPL
-266A D083            466             POP DPH
-266C D0E0            467             POP ACC
-266E 22              468     RET
-                     469     
-266F                 470     LCD_SEGUNDA_LINHA:
-266F C0E0            471             PUSH ACC
-2671 C083            472             PUSH DPH
-2673 C082            473             PUSH DPL
-2675 90FF10          474             MOV DPTR, #LCD_COMANDO
-2678 74C0            475             MOV A, #0C0h
-267A F0              476             MOVX @DPTR, A
-267B D1B1            477             CALL ATRASO_LCD
-267D D082            478             POP DPL
-267F D083            479             POP DPH
-2681 D0E0            480             POP ACC
-2683 22              481     RET
-                     482     ;------------------------------------------------------
-                     483     ; ENVIA PARA O LCD O VALOR DO ACUMULADOR
-2684                 484     LCD_ENVIA_CHAR:
-2684 C083            485             PUSH DPH
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     7
+262C D2CA            420                             SETB TR2
+262E 30CFFD          421                             JNB TF2, $      
+2631 C2CA            422                             CLR TR2                 
+2633 D9F5            423                     DJNZ R1, ANS_SEC_LOOP
+2635 D8F1            424             DJNZ R0, ANS_LOOP
+2637 D001            425             POP 1
+2639 D000            426             POP 0
+                     427     
+263B 22              428     RET             
+                     429     
+                     430     
+                     431     
+                     432     
+                     433     
+                     434     ;------------------------------------------------------
+                     435     ; STEPS DE INICIALIZACAO DO LCD
+263C                 436     LCD_INIT_STEP1:
+263C 90FF10          437             MOV DPTR, #LCD_COMANDO
+263F 7438            438             MOV A, #38h
+2641 F0              439             MOVX @DPTR, A           
+2642 D1C2            440             CALL ATRASO_LCD
+2644 22              441     RET
+                     442     
+                     443     ;------------------------------------------------------
+                     444     ; STEPS DE INICIALIZACAO DO LCD
+2645                 445     LCD_INIT_STEP2:
+                     446             ; Controle LCD - 0 0 0 0 1 D C B
+                     447             ;                          - 0 0 0 0 1 1 0 0 ou 0Ch
+                     448             
+2645 90FF10          449             MOV DPTR, #LCD_COMANDO
+2648 740C            450             MOV A, #0Ch
+264A F0              451             MOVX @DPTR, A   
+264B D1C2            452             CALL ATRASO_LCD
+                     453             
+                     454             ; Exibição LCD - 0 0 0 0 0 1 I/D S
+                     455             ;                          - 0 0 0 0 1 1  1  0  ou 06h
+264D 90FF10          456             MOV DPTR, #LCD_COMANDO
+2650 7406            457             MOV A, #06h
+2652 F0              458             MOVX @DPTR, A   
+2653 D1C2            459             CALL ATRASO_LCD
+2655 22              460     RET
+                     461     
+                     462     ;------------------------------------------------------
+                     463     ; LIMPA TELA DO LCD
+2656                 464     LCD_LIMPA_TELA:
+2656 C0E0            465             PUSH ACC
+2658 C083            466             PUSH DPH
+265A C082            467             PUSH DPL
+265C 90FF10          468             MOV DPTR, #LCD_COMANDO
+265F 7401            469             MOV A, #1
+2661 F0              470             MOVX @DPTR, A   
+2662 D1CB            471             CALL ATRASO_LIMPA_LCD
+2664 D082            472             POP DPL
+2666 D083            473             POP DPH
+2668 D0E0            474             POP ACC
+266A 22              475     RET
+                     476     
+266B                 477     LCD_PRIMEIRA_LINHA:
+266B C0E0            478             PUSH ACC
+266D C083            479             PUSH DPH
+266F C082            480             PUSH DPL
+2671 90FF10          481             MOV DPTR, #LCD_COMANDO
+2674 7480            482             MOV A, #80h
+2676 F0              483             MOVX @DPTR, A
+2677 D1C2            484             CALL ATRASO_LCD
+2679 D082            485             POP DPL
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     7
 
-2686 C082            486             PUSH DPL
-2688 90FF11          487             MOV DPTR, #LCD_DADO
-268B F0              488             MOVX @DPTR, A   
-268C D1B1            489             CALL ATRASO_LCD
-268E D082            490             POP DPL
-2690 D083            491             POP DPH
-2692 22              492     RET
-                     493     
-                     494     ;------------------------------------------------------
-                     495     ; ENVIA MENSAGEM PARA O LCD (DPTR precisa estar alinhado na mensagem)
-2693                 496     LCD_ENVIA_FRASE:
-                     497     
-2693 C083            498             PUSH DPH
-2695 C082            499             PUSH DPL        
-2697 C0E0            500             PUSH ACC
-2699                 501             LEF_LOOP:       
-2699 E4              502                     CLR A
-269A 93              503                     MOVC A, @A+DPTR
-                     504     
-269B 600D            505                     JZ LEF_RETURN                   
-                     506     
-269D C083            507                     PUSH DPH
-269F C082            508                     PUSH DPL        
-                     509                     
-26A1 D184            510                     CALL LCD_ENVIA_CHAR
-                     511     
-26A3 D082            512                     POP DPL
-26A5 D083            513                     POP DPH
-                     514     
-26A7 A3              515                     INC DPTR
-26A8 80EF            516             JMP LEF_LOOP
-26AA                 517     LEF_RETURN:
-26AA D0E0            518     POP ACC
-26AC D082            519     POP DPL
-26AE D083            520     POP DPH
-                     521     
-26B0 22              522     RET
-                     523     
-                     524     ;------------------------------------------------------
-                     525     ; Atraso necessário para o display 
-26B1                 526     ATRASO_LCD: 
-26B1 C000            527     PUSH 0
-26B3 7812            528             MOV R0, #18
-26B5 D8FE            529             DJNZ R0, $
-26B7 D000            530     POP 0
-26B9 22              531     RET
-                     532     
-                     533     ;------------------------------------------------------                 
-                     534     ; Atraso necessário para limpar o display - 41 x 40us = 1,65ms
-26BA                 535     ATRASO_LIMPA_LCD:
-26BA C001            536     PUSH 1
-26BC 7929            537             MOV  R1, #41
-26BE                 538             VOLTA_ATRASO_LIMPA_LCD:
-26BE D1B1            539             CALL ATRASO_LCD
-26C0 D9FC            540             DJNZ R1, VOLTA_ATRASO_LIMPA_LCD
-26C2 D001            541     POP 1
-26C4 22              542     RET
+267B D083            486             POP DPH
+267D D0E0            487             POP ACC
+267F 22              488     RET
+                     489     
+2680                 490     LCD_SEGUNDA_LINHA:
+2680 C0E0            491             PUSH ACC
+2682 C083            492             PUSH DPH
+2684 C082            493             PUSH DPL
+2686 90FF10          494             MOV DPTR, #LCD_COMANDO
+2689 74C0            495             MOV A, #0C0h
+268B F0              496             MOVX @DPTR, A
+268C D1C2            497             CALL ATRASO_LCD
+268E D082            498             POP DPL
+2690 D083            499             POP DPH
+2692 D0E0            500             POP ACC
+2694 22              501     RET
+                     502     ;------------------------------------------------------
+                     503     ; ENVIA PARA O LCD O VALOR DO ACUMULADOR
+2695                 504     LCD_ENVIA_CHAR:
+2695 C083            505             PUSH DPH
+2697 C082            506             PUSH DPL
+2699 90FF11          507             MOV DPTR, #LCD_DADO
+269C F0              508             MOVX @DPTR, A   
+269D D1C2            509             CALL ATRASO_LCD
+269F D082            510             POP DPL
+26A1 D083            511             POP DPH
+26A3 22              512     RET
+                     513     
+                     514     ;------------------------------------------------------
+                     515     ; ENVIA MENSAGEM PARA O LCD (DPTR precisa estar alinhado na mensagem)
+26A4                 516     LCD_ENVIA_FRASE:
+                     517     
+26A4 C083            518             PUSH DPH
+26A6 C082            519             PUSH DPL        
+26A8 C0E0            520             PUSH ACC
+26AA                 521             LEF_LOOP:       
+26AA E4              522                     CLR A
+26AB 93              523                     MOVC A, @A+DPTR
+                     524     
+26AC 600D            525                     JZ LEF_RETURN                   
+                     526     
+26AE C083            527                     PUSH DPH
+26B0 C082            528                     PUSH DPL        
+                     529                     
+26B2 D195            530                     CALL LCD_ENVIA_CHAR
+                     531     
+26B4 D082            532                     POP DPL
+26B6 D083            533                     POP DPH
+                     534     
+26B8 A3              535                     INC DPTR
+26B9 80EF            536             JMP LEF_LOOP
+26BB                 537     LEF_RETURN:
+26BB D0E0            538     POP ACC
+26BD D082            539     POP DPL
+26BF D083            540     POP DPH
+                     541     
+26C1 22              542     RET
                      543     
-                     544     
-                     545     
-3000                 546     ORG 3000H
-3000                 547             MSG_AGUARDANDO_VEICULO:
-3000 41677561        548             DB "Aguardando...", 0
+                     544     ;------------------------------------------------------
+                     545     ; Atraso necessário para o display 
+26C2                 546     ATRASO_LCD: 
+26C2 C000            547     PUSH 0
+26C4 7812            548             MOV R0, #18
+26C6 D8FE            549             DJNZ R0, $
+26C8 D000            550     POP 0
+26CA 22              551     RET
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     8
+
+                     552     
+                     553     ;------------------------------------------------------                 
+                     554     ; Atraso necessário para limpar o display - 41 x 40us = 1,65ms
+26CB                 555     ATRASO_LIMPA_LCD:
+26CB C001            556     PUSH 1
+26CD 7929            557             MOV  R1, #41
+26CF                 558             VOLTA_ATRASO_LIMPA_LCD:
+26CF D1C2            559             CALL ATRASO_LCD
+26D1 D9FC            560             DJNZ R1, VOLTA_ATRASO_LIMPA_LCD
+26D3 D001            561     POP 1
+26D5 22              562     RET
+                     563     
+                     564     
+                     565     
+3000                 566     ORG 3000H
+3000                 567             MSG_AGUARDANDO_VEICULO:
+3000 41677561        568             DB "Aguardando...", 0
 3004 7264616E                
 3008 646F2E2E                
 300C 2E00                    
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     8
-
-3050                 549     ORG 3050H
-3050                 550             MSG_MOTO:
-3050 4D6F746F        551             DB "Moto RS 0,00", 0
-3054 20525320                
+3050                 569     ORG 3050H
+3050                 570             MSG_MOTO:
+3050 4D6F746F        571             DB "Moto R$ 0,00", 0
+3054 20522420                
 3058 302C3030                
 305C 00                      
-3100                 552     ORG 3100H
-3100                 553             MSG_CARRO:
-3100 43617272        554             DB "Carro RS 5,00", 0
-3104 6F205253                
+3100                 572     ORG 3100H
+3100                 573             MSG_CARRO:
+3100 43617272        574             DB "Carro R$ 5,00", 0
+3104 6F205224                
 3108 20352C30                
 310C 3000                    
-3150                 555     ORG 3150H
-3150                 556             MSG_3_EIXOS:
-3150 33204569        557             DB "3 Eixos RS 7,00", 0
+3150                 575     ORG 3150H
+3150                 576             MSG_3_EIXOS:
+3150 33204569        577             DB "3 Eixos R$ 7,00", 0
 3154 786F7320                
-3158 52532037                
+3158 52242037                
 315C 2C303000                
-3200                 558     ORG 3200H
-3200                 559             MSG_4_EIXOS:
-3200 34204569        560             DB "4 Eixos RS 10,00", 0
+3200                 578     ORG 3200H
+3200                 579             MSG_4_EIXOS:
+3200 34204569        580             DB "4 Eixos R$ 10,00", 0
 3204 786F7320                
-3208 52532031                
+3208 52242031                
 320C 302C3030                
 3210 00                      
-3250                 561     ORG 3250H
-3250                 562             MSG_TROCO:
-3250 54726F63        563             DB "Troco: R$ ", 0
+3250                 581     ORG 3250H
+3250                 582             MSG_TROCO:
+3250 54726F63        583             DB "Troco: R$ ", 0
 3254 6F3A2052                
 3258 242000                  
-3300                 564     ORG 3300H
-3300                 565             MSG_CANCELA_ABERTA:
-3300 43616E63        566             DB "Cancela Aberta..", 0
+3300                 584     ORG 3300H
+3300                 585             MSG_CANCELA_ABERTA:
+3300 43616E63        586             DB "Cancela Aberta..", 0
 3304 656C6120                
 3308 41626572                
 330C 74612E2E                
 3310 00                      
-3350                 567     ORG 3350H
-3350                 568             MSG_DEBITO:
-3350 44656269        569             DB "Debito R$ ", 0
-3354 746F2052                
-3358 242000                  
-                     570     
-                     571     
-                     572     
-                     573     END
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE     9
+3350                 587     ORG 3350H
+3350                 588             MSG_DEBITO:
+3350 44657665        589             DB "Deve: R$ ", 0
+3354 3A205224                
+3358 2000                    
+                     590     
+                     591     
+                     592     
+                     593     END
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE     9
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -529,38 +549,38 @@ SYMBOL TABLE LISTING
 
 N A M E                   T Y P E  V A L U E   ATTRIBUTES
 
-ABRE_CANCELA . . . . . .  C ADDR   2605H   A   
+ABRE_CANCELA . . . . . .  C ADDR   2616H   A   
 AC . . . . . . . . . . .  B ADDR   00D0H.6 A   
 ACC. . . . . . . . . . .  D ADDR   00E0H   A   
-AGUARDA_N_SEGUNDOS . . .  C ADDR   2613H   A   
-AGUARDA_PAGAMENTO. . . .  C ADDR   2573H   A   
-AGUARDA_PASSAGEM_VEICULO  C ADDR   260FH   A   
-ANS_LOOP . . . . . . . .  C ADDR   2617H   A   
-ANS_SEC_LOOP . . . . . .  C ADDR   2619H   A   
-APV_LOOP . . . . . . . .  C ADDR   260FH   A   
-AP_DESATIVA_LUZ. . . . .  C ADDR   25CCH   A   
-AP_FORA_NOTA . . . . . .  C ADDR   25A5H   A   
-AP_LOOP. . . . . . . . .  C ADDR   257DH   A   
-AP_PULA_LUZ. . . . . . .  C ADDR   25CEH   A   
-AP_PULA_NOTA_2 . . . . .  C ADDR   259CH   A   
-AP_PULA_NOTA_5 . . . . .  C ADDR   25A5H   A   
-AP_RET . . . . . . . . .  C ADDR   25B3H   A   
-AP_RUN . . . . . . . . .  C ADDR   2577H   A   
-AP_TROCO . . . . . . . .  C ADDR   25AFH   A   
-ATRASO_LCD . . . . . . .  C ADDR   26B1H   A   
-ATRASO_LIMPA_LCD . . . .  C ADDR   26BAH   A   
+AGUARDA_N_SEGUNDOS . . .  C ADDR   2624H   A   
+AGUARDA_PAGAMENTO. . . .  C ADDR   2571H   A   
+AGUARDA_PASSAGEM_VEICULO  C ADDR   2620H   A   
+ANS_LOOP . . . . . . . .  C ADDR   2628H   A   
+ANS_SEC_LOOP . . . . . .  C ADDR   262AH   A   
+APV_LOOP . . . . . . . .  C ADDR   2620H   A   
+AP_DESATIVA_LUZ. . . . .  C ADDR   25C6H   A   
+AP_FORA_NOTA . . . . . .  C ADDR   259FH   A   
+AP_LOOP. . . . . . . . .  C ADDR   257BH   A   
+AP_PULA_LUZ. . . . . . .  C ADDR   25C8H   A   
+AP_PULA_NOTA_2 . . . . .  C ADDR   2596H   A   
+AP_PULA_NOTA_5 . . . . .  C ADDR   259FH   A   
+AP_RET . . . . . . . . .  C ADDR   25ADH   A   
+AP_RUN . . . . . . . . .  C ADDR   2575H   A   
+AP_TROCO . . . . . . . .  C ADDR   25A9H   A   
+ATRASO_LCD . . . . . . .  C ADDR   26C2H   A   
+ATRASO_LIMPA_LCD . . . .  C ADDR   26CBH   A   
 B. . . . . . . . . . . .  D ADDR   00F0H   A   
 CP_RL2 . . . . . . . . .  B ADDR   00C8H.0 A   
 CY . . . . . . . . . . .  B ADDR   00D0H.7 A   
 C_T2 . . . . . . . . . .  B ADDR   00C8H.1 A   
-DA_TROCO . . . . . . . .  C ADDR   25CFH   A   
+DA_TROCO . . . . . . . .  C ADDR   25C9H   A   
 DPH. . . . . . . . . . .  D ADDR   0083H   A   
 DPL. . . . . . . . . . .  D ADDR   0082H   A   
-DT_LOOP. . . . . . . . .  C ADDR   25D7H   A   
+DT_LOOP. . . . . . . . .  C ADDR   25D1H   A   
 EA . . . . . . . . . . .  B ADDR   00A8H.7 A   
-EPV_LOOP . . . . . . . .  C ADDR   2545H   A   
+EPV_LOOP . . . . . . . .  C ADDR   2543H   A   
 ES . . . . . . . . . . .  B ADDR   00A8H.4 A   
-ESPERA_POR_VEICULO . . .  C ADDR   2545H   A   
+ESPERA_POR_VEICULO . . .  C ADDR   2543H   A   
 ET0. . . . . . . . . . .  B ADDR   00A8H.1 A   
 ET1. . . . . . . . . . .  B ADDR   00A8H.3 A   
 ET2. . . . . . . . . . .  B ADDR   00A8H.5 A   
@@ -579,19 +599,22 @@ IT0. . . . . . . . . . .  B ADDR   0088H.0 A
 IT1. . . . . . . . . . .  B ADDR   0088H.2 A   
 LCD_COMANDO. . . . . . .  N NUMB   FF10H   A   
 LCD_DADO . . . . . . . .  N NUMB   FF11H   A   
-LCD_ENVIA_CHAR . . . . .  C ADDR   2684H   A   
-LCD_ENVIA_FRASE. . . . .  C ADDR   2693H   A   
+LCD_ENVIA_CHAR . . . . .  C ADDR   2695H   A   
+LCD_ENVIA_FRASE. . . . .  C ADDR   26A4H   A   
 LCD_ENVIA_VALOR_A. . . .  C ADDR   25FCH   A   
 LCD_ESCREVE_TROCO. . . .  C ADDR   25F2H   A   
-LCD_INIT_STEP1 . . . . .  C ADDR   262BH   A   
-LCD_INIT_STEP2 . . . . .  C ADDR   2634H   A   
-LCD_LIMPA_TELA . . . . .  C ADDR   2645H   A   
-LCD_PRIMEIRA_LINHA . . .  C ADDR   265AH   A   
-LCD_SEGUNDA_LINHA. . . .  C ADDR   266FH   A   
-LEF_LOOP . . . . . . . .  C ADDR   2699H   A   
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE    10
+LCD_INIT_STEP1 . . . . .  C ADDR   263CH   A   
+LCD_INIT_STEP2 . . . . .  C ADDR   2645H   A   
+LCD_LIMPA_TELA . . . . .  C ADDR   2656H   A   
+LCD_PRIMEIRA_LINHA . . .  C ADDR   266BH   A   
+LCD_SEGUNDA_LINHA. . . .  C ADDR   2680H   A   
+LEF_LOOP . . . . . . . .  C ADDR   26AAH   A   
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE    10
 
-LEF_RETURN . . . . . . .  C ADDR   26AAH   A   
+LEF_RETURN . . . . . . .  C ADDR   26BBH   A   
+LEVA_RET . . . . . . . .  C ADDR   2613H   A   
+LEVA_VALOR_NORMAL. . . .  C ADDR   260BH   A   
+LIBERA_MOEDA . . . . . .  C ADDR   25E9H   A   
 MSG_3_EIXOS. . . . . . .  C ADDR   3150H   A   
 MSG_4_EIXOS. . . . . . .  C ADDR   3200H   A   
 MSG_AGUARDANDO_VEICULO .  C ADDR   3000H   A   
@@ -607,16 +630,16 @@ P1 . . . . . . . . . . .  D ADDR   0090H   A
 P2 . . . . . . . . . . .  D ADDR   00A0H   A   
 P3 . . . . . . . . . . .  D ADDR   00B0H   A   
 PCON . . . . . . . . . .  D ADDR   0087H   A   
-PEGA_VALOR_DEBITO. . . .  C ADDR   254BH   A   
+PEGA_VALOR_DEBITO. . . .  C ADDR   2549H   A   
 PS . . . . . . . . . . .  B ADDR   00B8H.4 A   
 PSW. . . . . . . . . . .  D ADDR   00D0H   A   
 PT0. . . . . . . . . . .  B ADDR   00B8H.1 A   
 PT1. . . . . . . . . . .  B ADDR   00B8H.3 A   
 PT2. . . . . . . . . . .  B ADDR   00B8H.5 A   
-PULA_FIM_VALOR_DEBITO. .  C ADDR   256EH   A   
-PULA_VALOR_3_EIXOS . . .  C ADDR   255FH   A   
-PULA_VALOR_4_EIXOS . . .  C ADDR   2555H   A   
-PULA_VALOR_CARRO . . . .  C ADDR   2569H   A   
+PULA_FIM_VALOR_DEBITO. .  C ADDR   256CH   A   
+PULA_VALOR_3_EIXOS . . .  C ADDR   255DH   A   
+PULA_VALOR_4_EIXOS . . .  C ADDR   2553H   A   
+PULA_VALOR_CARRO . . . .  C ADDR   2567H   A   
 PX0. . . . . . . . . . .  B ADDR   00B8H.0 A   
 PX1. . . . . . . . . . .  B ADDR   00B8H.2 A   
 RB8. . . . . . . . . . .  B ADDR   0098H.2 A   
@@ -627,7 +650,8 @@ RD . . . . . . . . . . .  B ADDR   00B0H.7 A
 REINICIA . . . . . . . .  C ADDR   252FH   A   
 REINICIA_CANCELA . . . .  C ADDR   2517H   A   
 REN. . . . . . . . . . .  B ADDR   0098H.4 A   
-RESETA_LUZ_ALERTA. . . .  C ADDR   25B6H   A   
+REPOEM_MOEDA . . . . . .  C ADDR   25E0H   A   
+RESETA_LUZ_ALERTA. . . .  C ADDR   25B0H   A   
 RI . . . . . . . . . . .  B ADDR   0098H.0 A   
 RS0. . . . . . . . . . .  B ADDR   00D0H.3 A   
 RS1. . . . . . . . . . .  B ADDR   00D0H.4 A   
@@ -638,7 +662,7 @@ SM0. . . . . . . . . . .  B ADDR   0098H.7 A
 SM1. . . . . . . . . . .  B ADDR   0098H.6 A   
 SM2. . . . . . . . . . .  B ADDR   0098H.5 A   
 SP . . . . . . . . . . .  D ADDR   0081H   A   
-STATUS_LUZ_ALERTA. . . .  C ADDR   25BDH   A   
+STATUS_LUZ_ALERTA. . . .  C ADDR   25B7H   A   
 T0 . . . . . . . . . . .  B ADDR   00B0H.4 A   
 T1 . . . . . . . . . . .  B ADDR   00B0H.5 A   
 T2 . . . . . . . . . . .  B ADDR   0090H.0 A   
@@ -649,16 +673,17 @@ TCLK . . . . . . . . . .  B ADDR   00C8H.4 A
 TCON . . . . . . . . . .  D ADDR   0088H   A   
 TEMPO_LIGA_ALERTA. . . .  N NUMB   001EH   A   
 TEMPO_LUZ_ALERTA . . . .  N NUMB   0002H   A   
+TEMPO_OPERACAO_MOEDA . .  N NUMB   0001H   A   
 TF0. . . . . . . . . . .  B ADDR   0088H.5 A   
 TF1. . . . . . . . . . .  B ADDR   0088H.7 A   
 TF2. . . . . . . . . . .  B ADDR   00C8H.7 A   
+A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 12:37:49 PAGE    11
+
 TH0. . . . . . . . . . .  D ADDR   008CH   A   
 TH1. . . . . . . . . . .  D ADDR   008DH   A   
 TH2. . . . . . . . . . .  D ADDR   00CDH   A   
 TI . . . . . . . . . . .  B ADDR   0098H.1 A   
 TL0. . . . . . . . . . .  D ADDR   008AH   A   
-A51 MACRO ASSEMBLER  PROJETO                                                              10/17/2015 09:52:34 PAGE    11
-
 TL1. . . . . . . . . . .  D ADDR   008BH   A   
 TL2. . . . . . . . . . .  D ADDR   00CCH   A   
 TMOD . . . . . . . . . .  D ADDR   0089H   A   
@@ -667,8 +692,7 @@ TR1. . . . . . . . . . .  B ADDR   0088H.6 A
 TR2. . . . . . . . . . .  B ADDR   00C8H.2 A   
 TXD. . . . . . . . . . .  B ADDR   00B0H.1 A   
 VALOR_DEBITO . . . . . .    REG    R7          
-VALOR_PAGO . . . . . . .    REG    R6          
-VOLTA_ATRASO_LIMPA_LCD .  C ADDR   26BEH   A   
+VOLTA_ATRASO_LIMPA_LCD .  C ADDR   26CFH   A   
 WR . . . . . . . . . . .  B ADDR   00B0H.6 A   
 
 
